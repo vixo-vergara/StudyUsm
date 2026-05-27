@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyUSM</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #2a2a2a;
+    --accent: #c8f135;
+    --accent2: #7fff9b;
+    --text: #f0f0f0;
+    --muted: #666;
+    --danger: #ff4d4d;
+    --warning: #ffb347;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+  /* NAV */
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 2rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(10,10,10,0.95); backdrop-filter: blur(10px); z-index: 100; }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem; letter-spacing: -0.02em; }
+  .logo span { color: var(--accent); }
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab { background: none; border: none; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 6px 14px; border-radius: 20px; cursor: pointer; transition: all 0.15s; }
+  .nav-tab.active, .nav-tab:hover { background: var(--surface2); color: var(--text); }
+  .nav-tab.active { color: var(--accent); }
+
+  /* PAGES */
+  .page { display: none; padding: 2rem; max-width: 900px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* HERO */
+  .hero { padding: 3rem 0 2rem; }
+  .hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; }
+  .hero h1 em { color: var(--accent); font-style: normal; }
+  .hero p { color: var(--muted); margin-top: 0.75rem; font-size: 15px; max-width: 480px; line-height: 1.6; }
+
+  /* CARDS GRID */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem; }
+  .card-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.5rem; }
+  .card-val { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 700; }
+  .card-val.accent { color: var(--accent); }
+  .card-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* SECTION TITLE */
+  .sec-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin: 2rem 0 1rem; letter-spacing: -0.01em; }
+  .sec-title span { color: var(--accent); }
+
+  /* INPUT STYLES */
+  input[type=text], input[type=date], select, textarea {
+    background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    border-radius: 10px; padding: 10px 14px; font-family: 'DM Sans', sans-serif;
+    font-size: 14px; width: 100%; outline: none; transition: border 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  select option { background: var(--surface); }
+  .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
+  .input-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; }
+
+  /* BUTTONS */
+  .btn { background: var(--accent); color: #0a0a0a; border: none; border-radius: 10px; padding: 10px 20px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 14px; cursor: pointer; transition: all 0.15s; }
+  .btn:hover { background: #d4ff40; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn-ghost { background: none; border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; transition: all 0.15s; }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: none; border: 1px solid var(--danger); color: var(--danger); border-radius: 8px; padding: 5px 12px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+
+  /* RAMOS LIST */
+  .ramo-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between; }
+  .ramo-name { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 15px; }
+  .ramo-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .ramo-right { display: flex; align-items: center; gap: 8px; }
+  .cert-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: var(--surface2); border: 1px solid var(--border); }
+  .cert-badge.soon { border-color: var(--warning); color: var(--warning); }
+  .cert-badge.urgent { border-color: var(--danger); color: var(--danger); animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  /* TEMAS CHECKLIST */
+  .tema-group { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 0.75rem; overflow: hidden; }
+  .tema-header { padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+  .tema-header:hover { background: var(--surface2); }
+  .tema-title { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; }
+  .tema-progress { font-size: 12px; color: var(--accent); }
+  .tema-list { padding: 0 1.25rem 1rem; border-top: 1px solid var(--border); }
+  .tema-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .tema-item:last-child { border-bottom: none; }
+  .tema-item input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+  .tema-item label { font-size: 13px; cursor: pointer; flex: 1; margin: 0; color: var(--text); }
+  .tema-item.done label { text-decoration: line-through; color: var(--muted); }
+  .dif-badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; flex-shrink: 0; }
+  .dif-alta { background: #2a1a00; color: var(--warning); }
+  .dif-media { background: #001a2a; color: #7ec8e3; }
+
+  /* CALENDARIO */
+  .event-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 1rem; }
+  .event-date { text-align: center; min-width: 48px; }
+  .event-day { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.6rem; line-height: 1; }
+  .event-month { font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em; }
+  .event-info { flex: 1; }
+  .event-name { font-weight: 500; font-size: 14px; }
+  .event-ramo { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .days-left { font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 20px; }
+  .days-urgent { background: rgba(255,77,77,0.15); color: var(--danger); }
+  .days-soon { background: rgba(255,179,71,0.15); color: var(--warning); }
+  .days-ok { background: rgba(200,241,53,0.1); color: var(--accent); }
+
+  /* POMODORO */
+  .pomo-wrap { text-align: center; padding: 2rem 0; }
+  .pomo-timer { font-family: 'Syne', sans-serif; font-size: 5rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; margin: 1.5rem 0; }
+  .pomo-timer.work { color: var(--accent); }
+  .pomo-timer.rest { color: var(--accent2); }
+  .pomo-label { font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  .pomo-btns { display: flex; gap: 0.75rem; justify-content: center; margin-top: 1.5rem; }
+  .pomo-count { display: flex; gap: 6px; justify-content: center; margin-top: 1rem; }
+  .pomo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+  .pomo-dot.done { background: var(--accent); }
+
+  /* MATERIAL */
+  .upload-zone { border: 2px dashed var(--border); border-radius: 16px; padding: 2.5rem; text-align: center; cursor: pointer; transition: all 0.2s; }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: rgba(200,241,53,0.03); }
+  .upload-zone p { color: var(--muted); font-size: 14px; margin-top: 0.5rem; }
+  .upload-icon { font-size: 2.5rem; }
+  .file-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.875rem 1.25rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem; }
+  .file-icon { font-size: 1.2rem; }
+  .file-name { font-size: 13px; font-weight: 500; flex: 1; }
+  .file-meta { font-size: 11px; color: var(--muted); }
+  .file-status { font-size: 11px; padding: 3px 8px; border-radius: 20px; }
+  .status-pending { background: rgba(255,179,71,0.15); color: var(--warning); }
+  .status-approved { background: rgba(200,241,53,0.1); color: var(--accent); }
+
+  /* BLOQUES */
+  .bloque-item { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; padding: 0.875rem 1.25rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
+  .bloque-time { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; }
+  .bloque-tema { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .bloque-dur { font-size: 12px; color: var(--accent); }
+
+  .progress-bar { background: var(--border); border-radius: 4px; height: 4px; margin-top: 8px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.3s; }
+
+  @media (max-width: 600px) {
+    .grid2 { grid-template-columns: 1fr; }
+    .input-row { grid-template-columns: 1fr; }
+    .input-row.three { grid-template-columns: 1fr; }
+    nav { padding: 1rem; }
+    .page { padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Study<span>USM</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('inicio')">Inicio</button>
+    <button class="nav-tab" onclick="showPage('ramos')">Ramos</button>
+    <button class="nav-tab" onclick="showPage('calendario')">Fechas</button>
+    <button class="nav-tab" onclick="showPage('material')">Material</button>
+    <button class="nav-tab" onclick="showPage('pomodoro')">Timer</button>
+  </div>
+</nav>
+
+<!-- INICIO -->
+<div class="page active" id="page-inicio">
+  <div class="hero">
+    <h1>Hola,<br><em id="greeting-name">estudiante</em> 👋</h1>
+    <p>Tu centro de estudio para la USM. Todo en un lugar.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-label">Próxima evaluación</div>
+      <div class="card-val accent" id="prox-dias">—</div>
+      <div class="card-sub" id="prox-nombre">Agrega fechas en Calendario</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Temas completados</div>
+      <div class="card-val accent" id="temas-count">0 / 0</div>
+      <div class="progress-bar"><div class="progress-fill" id="temas-bar" style="width:0%"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Ramos activos</div>
+      <div class="card-val" id="ramos-count">0</div>
+      <div class="card-sub">este semestre</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Material disponible</div>
+      <div class="card-val" id="material-count">0</div>
+      <div class="card-sub">archivos aprobados</div>
+    </div>
+  </div>
+
+  <div class="sec-title">Bloques de hoy <span>·</span> generados automático</div>
+  <div id="bloques-hoy"></div>
+
+  <div style="margin-top:1rem; display:flex; align-items:center; gap:8px;">
+    <input type="text" id="nombre-input" placeholder="¿Cómo te llamas?" style="max-width:200px">
+    <button class="btn" onclick="setNombre()">Guardar</button>
+  </div>
+</div>
+
+<!-- RAMOS -->
+<div class="page" id="page-ramos">
+  <div class="hero" style="padding-bottom:1rem">
+    <h1>Mis <em>ramos</em></h1>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem">
+    <div class="sec-title" style="margin-top:0">Agregar ramo</div>
+    <div class="input-row">
+      <div><label>Nombre del ramo</label><input type="text" id="ramo-nombre" placeholder="ej. MATE 26"></div>
+      <div><label>Próximo certamen / control</label><input type="date" id="ramo-fecha"></div>
+    </div>
+    <div class="input-row three">
+      <div>
+        <label>Tipo de evaluación</label>
+        <select id="ramo-tipo">
+          <option>Certamen</option>
+          <option>Control</option>
+          <option>Taller</option>
+          <option>Examen</option>
+        </select>
+      </div>
+      <div><label>Número</label><input type="text" id="ramo-num" placeholder="ej. 2"></div>
+      <div><label>Dificultad</label>
+        <select id="ramo-dif">
+          <option>Alta</option>
+          <option>Media</option>
+          <option>Baja</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn" onclick="addRamo()">+ Agregar ramo</button>
+  </div>
+
+  <div class="sec-title">Tus ramos</div>
+  <div id="ramos-list"><p style="color:var(--muted);font-size:14px">Aún no tienes ramos. Agrega uno arriba.</p></div>
+
+  <div class="sec-title" style="margin-top:2rem">Temas por ramo <span>·</span> ticket de estudio</div>
+  <div id="temas-list"></div>
+  <button class="btn-ghost" onclick="showAddTema()" style="margin-top:0.5rem">+ Agregar tema</button>
+  <div id="add-tema-form" style="display:none; margin-top:1rem" class="card">
+    <div class="input-row">
+      <div><label>Ramo</label>
+        <select id="tema-ramo-sel" style="width:100%"></select>
+      </div>
+      <div><label>Nombre del tema</label><input type="text" id="tema-nombre" placeholder="ej. EDO exactas"></div>
+    </div>
+    <div class="input-row">
+      <div><label>Dificultad</label>
+        <select id="tema-dif">
+          <option value="alta">Alta</option>
+          <option value="media">Media</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:8px">
+        <button class="btn" onclick="addTema()" style="width:100%">Agregar</button>
+        <button class="btn-ghost" onclick="document.getElementById('add-tema-form').style.display='none'" style="width:100%">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CALENDARIO -->
+<div class="page" id="page-calendario">
+  <div class="hero" style="padding-bottom:1rem">
+    <h1>Fechas <em>clave</em></h1>
+  </div>
+  <p style="color:var(--muted);font-size:14px;margin-bottom:1.5rem">Los ramos que agregas con fecha aparecen aquí automáticamente.</p>
+  <div id="eventos-list"><p style="color:var(--muted);font-size:14px">Agrega ramos con fecha en la sección Ramos.</p></div>
+</div>
+
+<!-- MATERIAL -->
+<div class="page" id="page-material">
+  <div class="hero" style="padding-bottom:1rem">
+    <h1>Material <em>compartido</em></h1>
+  </div>
+
+  <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+    <div class="upload-icon">📄</div>
+    <strong style="font-size:15px">Sube material</strong>
+    <p>PDF, imágenes, apuntes · Quedará pendiente de aprobación</p>
+    <input type="file" id="file-input" style="display:none" multiple onchange="handleFiles(this.files)">
+  </div>
+
+  <div class="sec-title" style="margin-top:2rem">Pendiente de aprobación</div>
+  <div id="pending-files"><p style="color:var(--muted);font-size:14px">No hay archivos pendientes.</p></div>
+
+  <div class="sec-title">Material aprobado</div>
+  <div id="approved-files"><p style="color:var(--muted);font-size:14px">Aún no hay material aprobado.</p></div>
+</div>
+
+<!-- POMODORO -->
+<div class="page" id="page-pomodoro">
+  <div class="hero" style="padding-bottom:1rem">
+    <h1>Focus <em>timer</em></h1>
+  </div>
+
+  <div class="pomo-wrap">
+    <div class="pomo-label" id="pomo-label">Trabajo</div>
+    <div class="pomo-timer work" id="pomo-display">25:00</div>
+    <div class="pomo-count" id="pomo-dots"></div>
+    <div class="pomo-btns">
+      <button class="btn" id="pomo-start" onclick="pomodoroToggle()">Iniciar</button>
+      <button class="btn-ghost" onclick="pomodoroReset()">Reiniciar</button>
+    </div>
+    <div style="margin-top:2rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap">
+      <div style="text-align:center">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Trabajo</div>
+        <input type="number" id="work-min" value="25" min="1" max="60" style="width:70px;text-align:center">
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Descanso</div>
+        <input type="number" id="rest-min" value="5" min="1" max="30" style="width:70px;text-align:center">
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Sesiones meta</div>
+        <input type="number" id="sessions-target" value="4" min="1" max="12" style="width:70px;text-align:center">
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-title">Tema que estás estudiando ahora</div>
+  <select id="pomo-tema-sel" style="margin-bottom:1rem">
+    <option value="">— Selecciona un tema —</option>
+  </select>
+  <div id="pomo-current-tema" style="display:none" class="bloque-item">
+    <div><div class="bloque-time" id="pomo-tema-name">—</div><div class="bloque-tema">en progreso</div></div>
+    <div class="bloque-dur" id="pomo-tema-time">0 min</div>
+  </div>
+</div>
+
+<script>
+let ramos = JSON.parse(localStorage.getItem('ramos') || '[]');
+let temas = JSON.parse(localStorage.getItem('temas') || '[]');
+let files = JSON.parse(localStorage.getItem('files') || '[]');
+let nombre = localStorage.getItem('nombre') || '';
+
+if(nombre) document.getElementById('greeting-name').textContent = nombre;
+
+function save() {
+  localStorage.setItem('ramos', JSON.stringify(ramos));
+  localStorage.setItem('temas', JSON.stringify(temas));
+  localStorage.setItem('files', JSON.stringify(files));
+  renderAll();
+}
+
+function setNombre() {
+  nombre = document.getElementById('nombre-input').value.trim();
+  if(nombre) { localStorage.setItem('nombre', nombre); document.getElementById('greeting-name').textContent = nombre; }
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.target.classList.add('active');
+  renderAll();
+}
+
+function daysLeft(dateStr) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const target = new Date(dateStr); target.setHours(0,0,0,0);
+  return Math.round((target - today) / 86400000);
+}
+
+function addRamo() {
+  const nombre = document.getElementById('ramo-nombre').value.trim();
+  const fecha = document.getElementById('ramo-fecha').value;
+  const tipo = document.getElementById('ramo-tipo').value;
+  const num = document.getElementById('ramo-num').value.trim();
+  const dif = document.getElementById('ramo-dif').value;
+  if(!nombre) return alert('Ingresa el nombre del ramo');
+  ramos.push({ id: Date.now(), nombre, fecha, tipo, num, dif });
+  document.getElementById('ramo-nombre').value = '';
+  document.getElementById('ramo-fecha').value = '';
+  document.getElementById('ramo-num').value = '';
+  save();
+}
+
+function deleteRamo(id) {
+  ramos = ramos.filter(r => r.id !== id);
+  temas = temas.filter(t => t.ramoId !== id);
+  save();
+}
+
+function showAddTema() {
+  const form = document.getElementById('add-tema-form');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  const sel = document.getElementById('tema-ramo-sel');
+  sel.innerHTML = ramos.map(r => `<option value="${r.id}">${r.nombre}</option>`).join('');
+}
+
+function addTema() {
+  const ramoId = parseInt(document.getElementById('tema-ramo-sel').value);
+  const nombre = document.getElementById('tema-nombre').value.trim();
+  const dif = document.getElementById('tema-dif').value;
+  if(!nombre) return;
+  temas.push({ id: Date.now(), ramoId, nombre, dif, done: false });
+  document.getElementById('tema-nombre').value = '';
+  document.getElementById('add-tema-form').style.display = 'none';
+  save();
+}
+
+function toggleTema(id) {
+  const t = temas.find(t => t.id === id);
+  if(t) t.done = !t.done;
+  save();
+}
+
+function handleFiles(fileList) {
+  Array.from(fileList).forEach(f => {
+    files.push({ id: Date.now() + Math.random(), name: f.name, size: (f.size/1024).toFixed(0)+'KB', status: 'pending', date: new Date().toLocaleDateString('es-CL') });
+  });
+  save();
+}
+
+function approveFile(id) {
+  const f = files.find(f => f.id === id);
+  if(f) f.status = 'approved';
+  save();
+}
+
+function deleteFile(id) {
+  files = files.filter(f => f.id !== id);
+  save();
+}
+
+function dragOver(e) { e.preventDefault(); document.getElementById('upload-zone').classList.add('drag'); }
+function dragLeave() { document.getElementById('upload-zone').classList.remove('drag'); }
+function dropFile(e) { e.preventDefault(); dragLeave(); handleFiles(e.dataTransfer.files); }
+
+function renderAll() {
+  renderRamos();
+  renderCalendario();
+  renderTemas();
+  renderFiles();
+  renderDashboard();
+  renderBloques();
+  renderPomoTemas();
+}
+
+function renderRamos() {
+  const el = document.getElementById('ramos-list');
+  if(!ramos.length) { el.innerHTML = '<p style="color:var(--muted);font-size:14px">Aún no tienes ramos.</p>'; return; }
+  el.innerHTML = ramos.map(r => {
+    let badge = '', dl = '';
+    if(r.fecha) {
+      const d = daysLeft(r.fecha);
+      dl = d < 0 ? 'Pasado' : d === 0 ? '¡Hoy!' : `${d}d`;
+      badge = `<span class="cert-badge ${d<=2?'urgent':d<=7?'soon':''}">${r.tipo} ${r.num} · ${dl}</span>`;
+    }
+    return `<div class="ramo-item"><div><div class="ramo-name">${r.nombre}</div><div class="ramo-meta">Dificultad: ${r.dif}</div></div><div class="ramo-right">${badge}<button class="btn-danger" onclick="deleteRamo(${r.id})">✕</button></div></div>`;
+  }).join('');
+}
+
+function renderCalendario() {
+  const el = document.getElementById('eventos-list');
+  const conFecha = ramos.filter(r => r.fecha).sort((a,b) => new Date(a.fecha)-new Date(b.fecha));
+  if(!conFecha.length) { el.innerHTML = '<p style="color:var(--muted);font-size:14px">Agrega ramos con fecha en la sección Ramos.</p>'; return; }
+  el.innerHTML = conFecha.map(r => {
+    const d = daysLeft(r.fecha);
+    const date = new Date(r.fecha+'T12:00:00');
+    const day = date.getDate();
+    const month = date.toLocaleString('es-CL',{month:'short'}).toUpperCase();
+    const dClass = d<=2?'days-urgent':d<=7?'days-soon':'days-ok';
+    const dText = d<0?'Pasado':d===0?'¡Hoy!':d===1?'Mañana':`${d} días`;
+    return `<div class="event-item"><div class="event-date"><div class="event-day">${day}</div><div class="event-month">${month}</div></div><div class="event-info"><div class="event-name">${r.tipo} ${r.num}</div><div class="event-ramo">${r.nombre}</div></div><span class="days-left ${dClass}">${dText}</span></div>`;
+  }).join('');
+}
+
+function renderTemas() {
+  const el = document.getElementById('temas-list');
+  if(!ramos.length) { el.innerHTML = '<p style="color:var(--muted);font-size:14px">Agrega ramos primero.</p>'; return; }
+  el.innerHTML = ramos.map(r => {
+    const rt = temas.filter(t => t.ramoId === r.id);
+    if(!rt.length) return '';
+    const done = rt.filter(t=>t.done).length;
+    return `<div class="tema-group"><div class="tema-header" onclick="toggleGroup(this)"><div class="tema-title">${r.nombre}</div><div class="tema-progress">${done}/${rt.length} completados</div></div><div class="tema-list">${rt.map(t=>`<div class="tema-item ${t.done?'done':''}" id="tema-item-${t.id}"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTema(${t.id})"><label for="">${t.nombre}</label><span class="dif-badge ${t.dif==='alta'?'dif-alta':'dif-media'}">${t.dif}</span></div>`).join('')}</div></div>`;
+  }).join('') || '<p style="color:var(--muted);font-size:14px">Agrega temas con el botón de abajo.</p>';
+}
+
+function toggleGroup(header) {
+  const list = header.nextElementSibling;
+  list.style.display = list.style.display === 'none' ? 'block' : 'none';
+}
+
+function renderFiles() {
+  const pending = files.filter(f=>f.status==='pending');
+  const approved = files.filter(f=>f.status==='approved');
+  const pel = document.getElementById('pending-files');
+  const ael = document.getElementById('approved-files');
+  pel.innerHTML = pending.length ? pending.map(f=>`<div class="file-item"><div class="file-icon">📄</div><div class="file-name">${f.name}</div><div class="file-meta">${f.size} · ${f.date}</div><span class="file-status status-pending">Pendiente</span><button class="btn" style="padding:5px 12px;font-size:12px;margin-left:8px" onclick="approveFile(${f.id})">Aprobar</button><button class="btn-danger" style="margin-left:4px" onclick="deleteFile(${f.id})">✕</button></div>`).join('') : '<p style="color:var(--muted);font-size:14px">No hay archivos pendientes.</p>';
+  ael.innerHTML = approved.length ? approved.map(f=>`<div class="file-item"><div class="file-icon">✅</div><div class="file-name">${f.name}</div><div class="file-meta">${f.size} · ${f.date}</div><span class="file-status status-approved">Aprobado</span><button class="btn-danger" style="margin-left:8px" onclick="deleteFile(${f.id})">✕</button></div>`).join('') : '<p style="color:var(--muted);font-size:14px">Aún no hay material aprobado.</p>';
+}
+
+function renderDashboard() {
+  document.getElementById('ramos-count').textContent = ramos.length;
+  document.getElementById('material-count').textContent = files.filter(f=>f.status==='approved').length;
+  const done = temas.filter(t=>t.done).length;
+  const total = temas.length;
+  document.getElementById('temas-count').textContent = `${done} / ${total}`;
+  document.getElementById('temas-bar').style.width = total ? `${Math.round(done/total*100)}%` : '0%';
+  const prox = ramos.filter(r=>r.fecha).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha))[0];
+  if(prox) {
+    const d = daysLeft(prox.fecha);
+    document.getElementById('prox-dias').textContent = d<=0?'¡Hoy!':d===1?'Mañana':`${d} días`;
+    document.getElementById('prox-nombre').textContent = `${prox.tipo} ${prox.num} · ${prox.nombre}`;
+  }
+}
+
+function renderBloques() {
+  const el = document.getElementById('bloques-hoy');
+  const pendientes = temas.filter(t=>!t.done);
+  if(!pendientes.length) { el.innerHTML = '<p style="color:var(--muted);font-size:14px">No hay temas pendientes. ¡Todo listo! 🎉</p>'; return; }
+  const sorted = pendientes.sort((a,b)=>{ const o={alta:0,media:1}; return (o[a.dif]||2)-(o[b.dif]||2); });
+  const horas = [8,10,12,15,17,19];
+  el.innerHTML = sorted.slice(0,Math.min(sorted.length,6)).map((t,i)=>{
+    const h = horas[i] || 8+i*2;
+    const dur = t.dif==='alta'?90:60;
+    return `<div class="bloque-item"><div><div class="bloque-time">${h}:00</div><div class="bloque-tema">${t.nombre} · ${ramos.find(r=>r.id===t.ramoId)?.nombre||''}</div></div><div class="bloque-dur">${dur} min</div></div>`;
+  }).join('');
+}
+
+function renderPomoTemas() {
+  const sel = document.getElementById('pomo-tema-sel');
+  sel.innerHTML = '<option value="">— Selecciona un tema —</option>' + temas.filter(t=>!t.done).map(t=>`<option value="${t.id}">${t.nombre} · ${ramos.find(r=>r.id===t.ramoId)?.nombre||''}</option>`).join('');
+}
+
+// POMODORO
+let pomoInterval = null, pomoRunning = false, pomoSeconds = 0, pomoIsWork = true, pomoSession = 0, pomoMinutes = 0;
+let pomoTemaTime = 0;
+
+function pomodoroReset() {
+  clearInterval(pomoInterval); pomoRunning = false; pomoIsWork = true;
+  pomoSeconds = parseInt(document.getElementById('work-min').value) * 60;
+  updatePomoDisplay(); document.getElementById('pomo-start').textContent = 'Iniciar';
+}
+
+function pomodoroToggle() {
+  if(pomoRunning) {
+    clearInterval(pomoInterval); pomoRunning = false;
+    document.getElementById('pomo-start').textContent = 'Continuar';
+  } else {
+    if(!pomoInterval && pomoSeconds===0) pomoSeconds = parseInt(document.getElementById('work-min').value)*60;
+    pomoRunning = true;
+    document.getElementById('pomo-start').textContent = 'Pausar';
+    pomoInterval = setInterval(pomodoroTick, 1000);
+  }
+}
+
+function pomodoroTick() {
+  if(pomoSeconds <= 0) {
+    if(pomoIsWork) { pomoSession++; pomoMinutes += parseInt(document.getElementById('work-min').value); pomoIsWork = false; pomoSeconds = parseInt(document.getElementById('rest-min').value)*60; }
+    else { pomoIsWork = true; pomoSeconds = parseInt(document.getElementById('work-min').value)*60; }
+  } else { pomoSeconds--; }
+  if(pomoIsWork && pomoRunning) { pomoTemaTime++; updatePomoTemaDisplay(); }
+  updatePomoDisplay();
+}
+
+function updatePomoDisplay() {
+  const m = Math.floor(pomoSeconds/60).toString().padStart(2,'0');
+  const s = (pomoSeconds%60).toString().padStart(2,'0');
+  document.getElementById('pomo-display').textContent = `${m}:${s}`;
+  document.getElementById('pomo-display').className = `pomo-timer ${pomoIsWork?'work':'rest'}`;
+  document.getElementById('pomo-label').textContent = pomoIsWork ? 'Trabajo' : 'Descanso ☕';
+  const target = parseInt(document.getElementById('sessions-target').value);
+  document.getElementById('pomo-dots').innerHTML = Array.from({length:target},(_,i)=>`<div class="pomo-dot ${i<pomoSession?'done':''}"></div>`).join('');
+}
+
+function updatePomoTemaDisplay() {
+  const sel = document.getElementById('pomo-tema-sel');
+  if(sel.value) {
+    document.getElementById('pomo-current-tema').style.display = 'flex';
+    const opt = sel.options[sel.selectedIndex];
+    document.getElementById('pomo-tema-name').textContent = opt.text;
+    document.getElementById('pomo-tema-time').textContent = `${Math.floor(pomoTemaTime/60)} min`;
+  }
+}
+
+document.getElementById('pomo-tema-sel').addEventListener('change', function() { pomoTemaTime = 0; updatePomoTemaDisplay(); });
+
+pomodoroReset();
+renderAll();
+</script>
+</body>
+</html>
